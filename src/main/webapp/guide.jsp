@@ -1,4 +1,5 @@
 <%@ page import="java.sql.*" %>
+<%@ page import="com.wild_tour.connection.Connector" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <!DOCTYPE html>
@@ -6,13 +7,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Guide Services | Wildlife Tourism</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+
     <style>
-        /* ----- Reset & Base ----- */
         * {
             margin: 0;
             padding: 0;
@@ -26,7 +27,6 @@
             min-height: 100vh;
         }
 
-        /* ----- Page Header ----- */
         .page-header {
             background: linear-gradient(135deg, #0a1a2e, #0d2847);
             padding: 40px 0 30px;
@@ -38,8 +38,9 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 30% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
-                        radial-gradient(circle at 70% 50%, rgba(251, 191, 36, 0.05) 0%, transparent 60%);
+            background:
+                radial-gradient(circle at 30% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 70% 50%, rgba(251, 191, 36, 0.05) 0%, transparent 60%);
             pointer-events: none;
         }
 
@@ -56,8 +57,13 @@
         }
 
         @keyframes gradientMove {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
 
         .page-header .header-content {
@@ -101,7 +107,6 @@
             margin-top: 8px;
         }
 
-        /* ----- Stats Bar ----- */
         .stats-bar {
             background: #ffffff;
             padding: 20px 0;
@@ -132,7 +137,6 @@
             font-weight: 500;
         }
 
-        /* ----- Guide Grid ----- */
         .guide-grid {
             padding: 40px 0 60px;
         }
@@ -144,7 +148,6 @@
             padding: 0 20px;
         }
 
-        /* ----- Guide Card ----- */
         .guide-card {
             background: #ffffff;
             border-radius: 24px;
@@ -311,7 +314,6 @@
             transform: translateX(4px);
         }
 
-        /* ----- Empty State ----- */
         .empty-state {
             text-align: center;
             padding: 80px 20px;
@@ -334,12 +336,10 @@
             color: #6b7a6b;
         }
 
-        /* ----- Footer ----- */
         footer {
             margin-top: auto;
         }
 
-        /* ----- Responsive ----- */
         @media (max-width: 992px) {
             .page-header h1 {
                 font-size: 2.2rem;
@@ -434,6 +434,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <%@ include file="header.jsp" %>
@@ -441,133 +442,450 @@
 <!-- Page Header -->
 <section class="page-header">
     <div class="container">
+
         <div class="header-content" data-aos="fade-up">
-            <span class="header-badge"><i class="fa-solid fa-compass"></i> Guide Services</span>
-            <h1>Wildlife <span>Guide Services</span></h1>
-            <p>Meet our expert guides for an unforgettable wildlife experience</p>
+
+            <span class="header-badge">
+                <i class="fa-solid fa-compass"></i>
+                Guide Services
+            </span>
+
+            <h1>
+                Wildlife <span>Guide Services</span>
+            </h1>
+
+            <p>
+                Meet our expert guides for an unforgettable wildlife experience
+            </p>
+
         </div>
+
     </div>
 </section>
+
 
 <!-- Stats Bar -->
 <section class="stats-bar" data-aos="fade-up" data-aos-delay="100">
+
     <div class="container">
+
         <div class="stats-wrapper">
+
             <div class="stat-item">
-                <div class="stat-number" id="totalGuides">0</div>
-                <div class="stat-label"><i class="fa-regular fa-users"></i> Total Guides</div>
+
+                <div class="stat-number" id="totalGuides">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    <i class="fa-regular fa-users"></i>
+                    Total Guides
+                </div>
+
             </div>
+
+
             <div class="stat-item">
-                <div class="stat-number" id="avgPrice">₹0</div>
-                <div class="stat-label"><i class="fa-regular fa-currency-sign"></i> Avg Price</div>
+
+                <div class="stat-number" id="avgPrice">
+                    ₹0
+                </div>
+
+                <div class="stat-label">
+                    <i class="fa-regular fa-currency-sign"></i>
+                    Avg Price
+                </div>
+
             </div>
+
+
             <div class="stat-item">
-                <div class="stat-number" id="experience">0</div>
-                <div class="stat-label"><i class="fa-regular fa-star"></i> Years Experience</div>
+
+                <div class="stat-number" id="experience">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    <i class="fa-regular fa-star"></i>
+                    Years Experience
+                </div>
+
             </div>
+
         </div>
+
     </div>
 </section>
+
 
 <!-- Guide Grid -->
 <section class="guide-grid">
-    <div class="container">
-        <div class="grid-wrapper" id="guideGrid">
-            <%
-                Connection conn = null;
-                PreparedStatement ps = null;
-                ResultSet rs = null;
-                int count = 0;
-                double totalPrice = 0;
 
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/wildlife", "root", "ganesh@123");
+<div class="container">
 
-                    String query = "SELECT id, name, price, bio, image FROM guides";
-                    ps = conn.prepareStatement(query);
-                    rs = ps.executeQuery();
+<div class="grid-wrapper" id="guideGrid">
 
-                    while (rs.next()) {
-                        String name = rs.getString("name");
-                        String bio = rs.getString("bio");
-                        double price = rs.getDouble("price");
-                        String image = rs.getString("image");
-                        count++;
-                        totalPrice += price;
-                        
-                        // Generate guide title based on name
-                        String guideTitle = "Wildlife Expert";
-                        if (name.toLowerCase().contains("raj") || name.toLowerCase().contains("singh")) {
-                            guideTitle = "Senior Naturalist";
-                        } else if (name.toLowerCase().contains("sharma") || name.toLowerCase().contains("verma")) {
-                            guideTitle = "Wildlife Photographer";
-                        } else if (name.toLowerCase().contains("patel")) {
-                            guideTitle = "Jungle Specialist";
-                        } else if (name.toLowerCase().contains("kumar")) {
-                            guideTitle = "Birding Expert";
-                        } else {
-                            guideTitle = "Wildlife Guide";
-                        }
-            %>
-                        <div class="guide-card" data-aos="fade-up" data-aos-delay="<%= (count % 4) * 100 + 100 %>">
-                            <div class="card-image-wrapper">
-                                <img src="<%= image %>" alt="<%= name %>" class="card-image" 
-                                     onerror="this.src='https://placehold.co/200x200/1a2e1a/ffffff?text=Guide'">
-                                <span class="card-badge"><i class="fa-regular fa-certificate"></i> Expert</span>
-                            </div>
-                            <div class="card-body">
-                                <h3><%= name %></h3>
-                                <div class="guide-title"><i class="fa-regular fa-star"></i> <%= guideTitle %></div>
-                                <p class="card-bio"><%= bio != null && !bio.isEmpty() ? bio : "Experienced wildlife guide with deep knowledge of the jungle." %></p>
-                                <div class="card-price">
-                                    <span class="amount">₹<%= String.format("%.2f", price) %></span>
-                                    <span class="per">/ per day</span>
-                                </div>
-                                <div class="card-actions">
-                                    <a href="booking.jsp?itemType=Guide&itemName=<%= name %>&price=<%= price %>&imageURL=<%= image %>" 
-                                       class="btn btn-book">
-                                        <i class="fa-solid fa-calendar-check"></i> Book Now
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-            <%
-                    }
+<%
 
-                    if (count == 0) {
-            %>
-                        <div class="empty-state">
-                            <div class="empty-icon"><i class="fa-regular fa-face-frown"></i></div>
-                            <h3>No Guides Available</h3>
-                            <p>Check back later for expert guide services.</p>
-                        </div>
-            <%
-                    }
-                } catch (Exception e) {
-                    out.println("<div class='empty-state'>");
-                    out.println("<div class='empty-icon'><i class='fa-regular fa-circle-exclamation' style='color: #dc2626;'></i></div>");
-                    out.println("<h3 style='color: #dc2626;'>Error Loading Guides</h3>");
-                    out.println("<p>" + e.getMessage() + "</p>");
-                    out.println("</div>");
-                } finally {
-                    if (rs != null) try { rs.close(); } catch (SQLException e) {}
-                    if (ps != null) try { ps.close(); } catch (SQLException e) {}
-                    if (conn != null) try { conn.close(); } catch (SQLException e) {}
-                }
-            %>
-        </div>
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    int count = 0;
+    double totalPrice = 0;
+
+
+    try {
+
+        /*
+         * Connector.java handles the
+         * Render -> Aiven MySQL connection.
+         */
+
+        conn = Connector.requestConnection();
+
+
+        if (conn == null) {
+
+            throw new SQLException(
+                "Database connection could not be established."
+            );
+
+        }
+
+
+        String query =
+            "SELECT id, name, price, bio, image FROM guides";
+
+
+        ps = conn.prepareStatement(query);
+
+        rs = ps.executeQuery();
+
+
+        while (rs.next()) {
+
+
+            String name =
+                rs.getString("name");
+
+
+            String bio =
+                rs.getString("bio");
+
+
+            double price =
+                rs.getDouble("price");
+
+
+            String image =
+                rs.getString("image");
+
+
+            count++;
+
+            totalPrice += price;
+
+
+            String guideTitle =
+                "Wildlife Expert";
+
+
+            if (
+                name != null &&
+                (
+                    name.toLowerCase().contains("raj") ||
+                    name.toLowerCase().contains("singh")
+                )
+            ) {
+
+                guideTitle =
+                    "Senior Naturalist";
+
+            }
+
+            else if (
+                name != null &&
+                (
+                    name.toLowerCase().contains("sharma") ||
+                    name.toLowerCase().contains("verma")
+                )
+            ) {
+
+                guideTitle =
+                    "Wildlife Photographer";
+
+            }
+
+            else if (
+                name != null &&
+                name.toLowerCase().contains("patel")
+            ) {
+
+                guideTitle =
+                    "Jungle Specialist";
+
+            }
+
+            else if (
+                name != null &&
+                name.toLowerCase().contains("kumar")
+            ) {
+
+                guideTitle =
+                    "Birding Expert";
+
+            }
+
+            else {
+
+                guideTitle =
+                    "Wildlife Guide";
+
+            }
+
+%>
+
+
+<div class="guide-card"
+     data-aos="fade-up"
+     data-aos-delay="<%= (count % 4) * 100 + 100 %>">
+
+
+    <div class="card-image-wrapper">
+
+
+        <img
+            src="<%= image %>"
+            alt="<%= name %>"
+            class="card-image"
+
+            onerror="
+                this.src='https://placehold.co/200x200/1a2e1a/ffffff?text=Guide'
+            "
+        >
+
+
+        <span class="card-badge">
+
+            <i class="fa-regular fa-certificate"></i>
+
+            Expert
+
+        </span>
+
+
     </div>
+
+
+    <div class="card-body">
+
+
+        <h3>
+            <%= name %>
+        </h3>
+
+
+        <div class="guide-title">
+
+            <i class="fa-regular fa-star"></i>
+
+            <%= guideTitle %>
+
+        </div>
+
+
+        <p class="card-bio">
+
+            <%=
+                bio != null && !bio.isEmpty()
+                ? bio
+                : "Experienced wildlife guide with deep knowledge of the jungle."
+            %>
+
+        </p>
+
+
+        <div class="card-price">
+
+            <span class="amount">
+                ₹<%= String.format("%.2f", price) %>
+            </span>
+
+            <span class="per">
+                / per day
+            </span>
+
+        </div>
+
+
+        <div class="card-actions">
+
+
+            <a
+                href="booking.jsp?itemType=Guide&itemName=<%= name %>&price=<%= price %>&imageURL=<%= image %>"
+                class="btn btn-book"
+            >
+
+                <i class="fa-solid fa-calendar-check"></i>
+
+                Book Now
+
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<%
+
+        }
+
+
+        if (count == 0) {
+
+%>
+
+
+<div class="empty-state">
+
+
+    <div class="empty-icon">
+
+        <i class="fa-regular fa-face-frown"></i>
+
+    </div>
+
+
+    <h3>
+        No Guides Available
+    </h3>
+
+
+    <p>
+        Check back later for expert guide services.
+    </p>
+
+
+</div>
+
+
+<%
+
+        }
+
+
+    } catch (Exception e) {
+
+
+        System.out.println(
+            "Guide page database error: "
+            + e.getMessage()
+        );
+
+
+        e.printStackTrace();
+
+%>
+
+
+<div class="empty-state">
+
+
+    <div class="empty-icon">
+
+        <i
+            class="fa-solid fa-circle-exclamation"
+            style="color:#dc2626;">
+        </i>
+
+    </div>
+
+
+    <h3 style="color:#dc2626;">
+        Error Loading Guides
+    </h3>
+
+
+    <p>
+        Unable to load guide information
+        from the database.
+    </p>
+
+
+</div>
+
+
+<%
+
+    } finally {
+
+
+        if (rs != null) {
+
+            try {
+                rs.close();
+            }
+
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+        if (ps != null) {
+
+            try {
+                ps.close();
+            }
+
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+        if (conn != null) {
+
+            try {
+                conn.close();
+            }
+
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+%>
+
+</div>
+
+</div>
+
 </section>
+
 
 <%@ include file="footer.jsp" %>
 
-<!-- Scripts -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
+
 <script>
-    // Initialize AOS animations
+
     AOS.init({
         duration: 800,
         easing: 'ease-out',
@@ -575,27 +893,84 @@
         offset: 50
     });
 
-    // Update stats dynamically
-    document.addEventListener('DOMContentLoaded', function() {
-        const guideCards = document.querySelectorAll('.guide-card');
-        const totalGuides = guideCards.length;
-        
-        if (totalGuides > 0) {
-            document.getElementById('totalGuides').textContent = totalGuides;
-            
-            let totalPrice = 0;
-            guideCards.forEach(card => {
-                const priceText = card.querySelector('.card-price .amount').textContent;
-                const price = parseFloat(priceText.replace('₹', ''));
-                totalPrice += price;
-            });
-            const avgPrice = totalPrice / totalGuides;
-            document.getElementById('avgPrice').textContent = '₹' + avgPrice.toFixed(0);
-            
-            // Estimate experience (simplified)
-            document.getElementById('experience').textContent = Math.floor(Math.random() * 10 + 5) + '+';
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function() {
+
+
+            const guideCards =
+                document.querySelectorAll(
+                    '.guide-card'
+                );
+
+
+            const totalGuides =
+                guideCards.length;
+
+
+            document.getElementById(
+                'totalGuides'
+            ).textContent =
+                totalGuides;
+
+
+            if (totalGuides > 0) {
+
+
+                let totalPrice = 0;
+
+
+                guideCards.forEach(
+                    function(card) {
+
+
+                        const priceText =
+                            card.querySelector(
+                                '.card-price .amount'
+                            ).textContent;
+
+
+                        const price =
+                            parseFloat(
+                                priceText.replace('₹', '')
+                            );
+
+
+                        if (!isNaN(price)) {
+
+                            totalPrice += price;
+
+                        }
+
+                    }
+                );
+
+
+                const avgPrice =
+                    totalPrice /
+                    totalGuides;
+
+
+                document.getElementById(
+                    'avgPrice'
+                ).textContent =
+                    '₹' +
+                    avgPrice.toFixed(0);
+
+
+                document.getElementById(
+                    'experience'
+                ).textContent =
+                    Math.floor(
+                        Math.random() * 10 + 5
+                    ) + '+';
+
+            }
+
         }
-    });
+    );
+
 </script>
 
 </body>
