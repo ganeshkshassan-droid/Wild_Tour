@@ -1,17 +1,19 @@
 <%@ page import="java.sql.*" %>
+<%@ page import="com.wild_tour.connection.Connector" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Tour Packages | Wildlife Tourism</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+
     <style>
-        /* ----- Reset & Base ----- */
         * {
             margin: 0;
             padding: 0;
@@ -25,7 +27,6 @@
             min-height: 100vh;
         }
 
-        /* ----- Page Header ----- */
         .page-header {
             background: linear-gradient(135deg, #0a1a2e, #0d2847);
             padding: 40px 0 30px;
@@ -37,8 +38,9 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 60%),
-                        radial-gradient(circle at 70% 50%, rgba(167, 139, 250, 0.05) 0%, transparent 60%);
+            background:
+                radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 70% 50%, rgba(167, 139, 250, 0.05) 0%, transparent 60%);
             pointer-events: none;
         }
 
@@ -55,8 +57,13 @@
         }
 
         @keyframes gradientMove {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
 
         .page-header .header-content {
@@ -100,7 +107,6 @@
             margin-top: 8px;
         }
 
-        /* ----- Stats Bar ----- */
         .stats-bar {
             background: #ffffff;
             padding: 20px 0;
@@ -131,7 +137,6 @@
             font-weight: 500;
         }
 
-        /* ----- Package Grid ----- */
         .package-grid {
             padding: 40px 0 60px;
         }
@@ -143,7 +148,6 @@
             padding: 0 20px;
         }
 
-        /* ----- Package Card ----- */
         .package-card {
             background: #ffffff;
             border-radius: 24px;
@@ -305,7 +309,6 @@
             transform: translateX(4px);
         }
 
-        /* ----- Empty State ----- */
         .empty-state {
             text-align: center;
             padding: 80px 20px;
@@ -328,12 +331,10 @@
             color: #6b7a6b;
         }
 
-        /* ----- Footer ----- */
         footer {
             margin-top: auto;
         }
 
-        /* ----- Responsive ----- */
         @media (max-width: 992px) {
             .page-header h1 {
                 font-size: 2.2rem;
@@ -429,6 +430,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <%@ include file="header.jsp" %>
@@ -436,139 +438,466 @@
 <!-- Page Header -->
 <section class="page-header">
     <div class="container">
+
         <div class="header-content" data-aos="fade-up">
-            <span class="header-badge"><i class="fa-solid fa-suitcase"></i> Tour Packages</span>
-            <h1>Wildlife <span>Tour Packages</span></h1>
-            <p>Choose your perfect wildlife adventure package</p>
+
+            <span class="header-badge">
+                <i class="fa-solid fa-suitcase"></i>
+                Tour Packages
+            </span>
+
+            <h1>
+                Wildlife <span>Tour Packages</span>
+            </h1>
+
+            <p>
+                Choose your perfect wildlife adventure package
+            </p>
+
         </div>
+
     </div>
 </section>
+
 
 <!-- Stats Bar -->
 <section class="stats-bar" data-aos="fade-up" data-aos-delay="100">
+
     <div class="container">
+
         <div class="stats-wrapper">
+
             <div class="stat-item">
-                <div class="stat-number" id="totalPackages">0</div>
-                <div class="stat-label"><i class="fa-regular fa-suitcase"></i> Total Packages</div>
+
+                <div class="stat-number" id="totalPackages">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    <i class="fa-regular fa-suitcase"></i>
+                    Total Packages
+                </div>
+
             </div>
+
+
             <div class="stat-item">
-                <div class="stat-number" id="avgPrice">₹0</div>
-                <div class="stat-label"><i class="fa-regular fa-currency-sign"></i> Avg Price</div>
+
+                <div class="stat-number" id="avgPrice">
+                    ₹0
+                </div>
+
+                <div class="stat-label">
+                    <i class="fa-regular fa-currency-sign"></i>
+                    Avg Price
+                </div>
+
             </div>
+
+
             <div class="stat-item">
-                <div class="stat-number" id="amenities">0</div>
-                <div class="stat-label"><i class="fa-regular fa-star"></i> Amenities</div>
+
+                <div class="stat-number" id="amenities">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    <i class="fa-regular fa-star"></i>
+                    Amenities
+                </div>
+
             </div>
+
         </div>
+
     </div>
 </section>
+
 
 <!-- Package Grid -->
 <section class="package-grid">
-    <div class="container">
-        <div class="grid-wrapper" id="packageGrid">
-            <%
-                Connection conn = null;
-                PreparedStatement ps = null;
-                ResultSet rs = null;
-                int count = 0;
-                double totalPrice = 0;
-                int totalAmenities = 0;
 
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/wildlife", "root", "ganesh@123");
+<div class="container">
 
-                    String sql = "SELECT * FROM packages";
-                    ps = conn.prepareStatement(sql);
-                    rs = ps.executeQuery();
+<div class="grid-wrapper" id="packageGrid">
 
-                    while (rs.next()) {
-                        String name = rs.getString("name");
-                        double price = rs.getDouble("price");
-                        String imageUrl = rs.getString("image_url");
-                        count++;
-                        totalPrice += price;
-                        
-                        String[] amenities = {};
-                        String badgeText = "Premium";
-                        
-                        if (name.equalsIgnoreCase("Maharaja Package")) {
-                            amenities = new String[]{"Luxury Cottage", "All Meals", "2 Jeep Safaris", "Coracle Ride", "GST Included"};
-                            badgeText = "Luxury";
-                        } else if (name.equalsIgnoreCase("Viceroy Package")) {
-                            amenities = new String[]{"North/East Bungalow", "All Meals", "Boat + Jeep Safari", "Coracle Ride", "GST Included"};
-                            badgeText = "Premium";
-                        } else if (name.equalsIgnoreCase("Kabini Tent Package")) {
-                            amenities = new String[]{"Tented Cottage", "All Meals", "Boat + Jeep Safari", "Forest Entry", "GST Included"};
-                            badgeText = "Adventure";
-                        } else if (name.equalsIgnoreCase("Dormitory Package")) {
-                            amenities = new String[]{"Shared Dormitory", "All Meals", "Boat + Van Safari", "Forest Entry", "GST Included"};
-                            badgeText = "Budget";
-                        }
-                        totalAmenities += amenities.length;
-            %>
-                        <div class="package-card" data-aos="fade-up" data-aos-delay="<%= (count % 4) * 100 + 100 %>">
-                            <div class="card-image-wrapper">
-                                <img src="<%= imageUrl %>" alt="<%= name %>" class="card-image" 
-                                     onerror="this.src='https://placehold.co/600x400/1a2e1a/ffffff?text=Tour+Package'">
-                                <span class="card-badge"><i class="fa-regular fa-crown"></i> <%= badgeText %></span>
-                            </div>
-                            <div class="card-body">
-                                <div class="card-header">
-                                    <h3><%= name %></h3>
-                                    <div class="card-price">₹<%= String.format("%.2f", price) %><small>/night</small></div>
-                                </div>
-                                <div class="amenities">
-                                    <% for (String amenity : amenities) { %>
-                                        <span class="amenity-tag"><i class="fa-solid fa-check"></i> <%= amenity %></span>
-                                    <% } %>
-                                </div>
-                                <div class="card-actions">
-                                    <a href="booking.jsp?itemType=Package&itemName=<%= name %>&price=<%= price %>&imageURL=<%= imageUrl %>" 
-                                       class="btn btn-book">
-                                        <i class="fa-solid fa-calendar-check"></i> Book Now
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-            <%
-                    }
+<%
 
-                    if (count == 0) {
-            %>
-                        <div class="empty-state">
-                            <div class="empty-icon"><i class="fa-regular fa-face-frown"></i></div>
-                            <h3>No Packages Available</h3>
-                            <p>Check back later for exciting tour packages.</p>
-                        </div>
-            <%
-                    }
-                } catch (Exception e) {
-                    out.println("<div class='empty-state'>");
-                    out.println("<div class='empty-icon'><i class='fa-regular fa-circle-exclamation' style='color: #dc2626;'></i></div>");
-                    out.println("<h3 style='color: #dc2626;'>Error Loading Packages</h3>");
-                    out.println("<p>" + e.getMessage() + "</p>");
-                    out.println("</div>");
-                } finally {
-                    if (rs != null) try { rs.close(); } catch (SQLException e) {}
-                    if (ps != null) try { ps.close(); } catch (SQLException e) {}
-                    if (conn != null) try { conn.close(); } catch (SQLException e) {}
-                }
-            %>
-        </div>
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    int count = 0;
+    double totalPrice = 0;
+    int totalAmenities = 0;
+
+
+    try {
+
+        /*
+         * IMPORTANT:
+         * Connector.java contains the
+         * Render -> Aiven database connection.
+         *
+         * Do not use localhost here.
+         */
+
+        conn = Connector.requestConnection();
+
+
+        if (conn == null) {
+
+            throw new SQLException(
+                "Database connection could not be established."
+            );
+
+        }
+
+
+        String sql =
+            "SELECT * FROM packages";
+
+
+        ps = conn.prepareStatement(sql);
+
+        rs = ps.executeQuery();
+
+
+        while (rs.next()) {
+
+
+            String name =
+                rs.getString("name");
+
+
+            double price =
+                rs.getDouble("price");
+
+
+            String imageUrl =
+                rs.getString("image_url");
+
+
+            count++;
+
+            totalPrice += price;
+
+
+            String[] amenities = {};
+
+            String badgeText = "Premium";
+
+
+            if (name.equalsIgnoreCase("Maharaja Package")) {
+
+                amenities = new String[] {
+                    "Luxury Cottage",
+                    "All Meals",
+                    "2 Jeep Safaris",
+                    "Coracle Ride",
+                    "GST Included"
+                };
+
+                badgeText = "Luxury";
+
+            }
+
+            else if (name.equalsIgnoreCase("Viceroy Package")) {
+
+                amenities = new String[] {
+                    "North/East Bungalow",
+                    "All Meals",
+                    "Boat + Jeep Safari",
+                    "Coracle Ride",
+                    "GST Included"
+                };
+
+                badgeText = "Premium";
+
+            }
+
+            else if (name.equalsIgnoreCase("Kabini Tent Package")) {
+
+                amenities = new String[] {
+                    "Tented Cottage",
+                    "All Meals",
+                    "Boat + Jeep Safari",
+                    "Forest Entry",
+                    "GST Included"
+                };
+
+                badgeText = "Adventure";
+
+            }
+
+            else if (name.equalsIgnoreCase("Dormitory Package")) {
+
+                amenities = new String[] {
+                    "Shared Dormitory",
+                    "All Meals",
+                    "Boat + Van Safari",
+                    "Forest Entry",
+                    "GST Included"
+                };
+
+                badgeText = "Budget";
+
+            }
+
+
+            totalAmenities += amenities.length;
+
+%>
+
+
+<div class="package-card"
+     data-aos="fade-up"
+     data-aos-delay="<%= (count % 4) * 100 + 100 %>">
+
+
+    <div class="card-image-wrapper">
+
+
+        <img
+            src="<%= imageUrl %>"
+            alt="<%= name %>"
+            class="card-image"
+
+            onerror="
+                this.src='https://placehold.co/600x400/1a2e1a/ffffff?text=Tour+Package'
+            "
+        >
+
+
+        <span class="card-badge">
+
+            <i class="fa-regular fa-crown"></i>
+
+            <%= badgeText %>
+
+        </span>
+
+
     </div>
+
+
+    <div class="card-body">
+
+
+        <div class="card-header">
+
+
+            <h3>
+                <%= name %>
+            </h3>
+
+
+            <div class="card-price">
+
+                ₹<%= String.format("%.2f", price) %>
+
+                <small>
+                    /night
+                </small>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="amenities">
+
+            <%
+
+                for (String amenity : amenities) {
+
+            %>
+
+                <span class="amenity-tag">
+
+                    <i class="fa-solid fa-check"></i>
+
+                    <%= amenity %>
+
+                </span>
+
+            <%
+
+                }
+
+            %>
+
+        </div>
+
+
+        <div class="card-actions">
+
+
+            <a
+                href="booking.jsp?itemType=Package&itemName=<%= name %>&price=<%= price %>&imageURL=<%= imageUrl %>"
+                class="btn btn-book"
+            >
+
+                <i class="fa-solid fa-calendar-check"></i>
+
+                Book Now
+
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<%
+
+        }
+
+
+        if (count == 0) {
+
+%>
+
+
+<div class="empty-state">
+
+
+    <div class="empty-icon">
+
+        <i class="fa-regular fa-face-frown"></i>
+
+    </div>
+
+
+    <h3>
+        No Packages Available
+    </h3>
+
+
+    <p>
+        Check back later for exciting tour packages.
+    </p>
+
+
+</div>
+
+
+<%
+
+        }
+
+
+    } catch (Exception e) {
+
+
+        System.out.println(
+            "Package page database error: "
+            + e.getMessage()
+        );
+
+
+        e.printStackTrace();
+
+%>
+
+
+<div class="empty-state">
+
+
+    <div class="empty-icon">
+
+        <i
+            class="fa-solid fa-circle-exclamation"
+            style="color:#dc2626;">
+        </i>
+
+    </div>
+
+
+    <h3 style="color:#dc2626;">
+        Error Loading Packages
+    </h3>
+
+
+    <p>
+        Unable to load package information
+        from the database.
+    </p>
+
+
+</div>
+
+
+<%
+
+    } finally {
+
+
+        if (rs != null) {
+
+            try {
+                rs.close();
+            }
+
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+        if (ps != null) {
+
+            try {
+                ps.close();
+            }
+
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+        if (conn != null) {
+
+            try {
+                conn.close();
+            }
+
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+%>
+
+</div>
+
+</div>
+
 </section>
+
 
 <%@ include file="footer.jsp" %>
 
-<!-- Scripts -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
+
 <script>
-    // Initialize AOS animations
+
     AOS.init({
         duration: 800,
         easing: 'ease-out',
@@ -576,28 +905,96 @@
         offset: 50
     });
 
-    // Update stats dynamically
-    document.addEventListener('DOMContentLoaded', function() {
-        const packageCards = document.querySelectorAll('.package-card');
-        const totalPackages = packageCards.length;
-        
-        if (totalPackages > 0) {
-            document.getElementById('totalPackages').textContent = totalPackages;
-            
-            let totalPrice = 0;
-            let amenitiesCount = 0;
-            packageCards.forEach(card => {
-                const priceText = card.querySelector('.card-price').textContent;
-                const price = parseFloat(priceText.replace('₹', '').replace('/night', ''));
-                totalPrice += price;
-                const amenityTags = card.querySelectorAll('.amenity-tag');
-                amenitiesCount += amenityTags.length;
-            });
-            const avgPrice = totalPrice / totalPackages;
-            document.getElementById('avgPrice').textContent = '₹' + avgPrice.toFixed(0);
-            document.getElementById('amenities').textContent = amenitiesCount;
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function() {
+
+
+            const packageCards =
+                document.querySelectorAll(
+                    '.package-card'
+                );
+
+
+            const totalPackages =
+                packageCards.length;
+
+
+            document.getElementById(
+                'totalPackages'
+            ).textContent =
+                totalPackages;
+
+
+            if (totalPackages > 0) {
+
+
+                let totalPrice = 0;
+
+                let amenitiesCount = 0;
+
+
+                packageCards.forEach(
+                    function(card) {
+
+
+                        const priceText =
+                            card.querySelector(
+                                '.card-price'
+                            ).textContent;
+
+
+                        const price =
+                            parseFloat(
+                                priceText
+                                .replace('₹', '')
+                                .replace('/night', '')
+                            );
+
+
+                        if (!isNaN(price)) {
+
+                            totalPrice += price;
+
+                        }
+
+
+                        const amenityTags =
+                            card.querySelectorAll(
+                                '.amenity-tag'
+                            );
+
+
+                        amenitiesCount +=
+                            amenityTags.length;
+
+                    }
+                );
+
+
+                const avgPrice =
+                    totalPrice /
+                    totalPackages;
+
+
+                document.getElementById(
+                    'avgPrice'
+                ).textContent =
+                    '₹' +
+                    avgPrice.toFixed(0);
+
+
+                document.getElementById(
+                    'amenities'
+                ).textContent =
+                    amenitiesCount;
+
+            }
+
         }
-    });
+    );
+
 </script>
 
 </body>

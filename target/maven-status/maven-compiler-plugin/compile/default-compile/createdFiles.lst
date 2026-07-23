@@ -13,6 +13,7 @@ com\wild_tour\dao\SafariDAO.class
 com\wild_tour\servlet\GuideAction.class
 com\wild_tour\connection\Connector.class
 com\wild_tour\dao\UserDAOImpl.class
+com\wild_tour\util\EmailService$1.class
 com\wild_tour\dao\GuideDAO.class
 com\wild_tour\dao\PackagesDAOImpl.class
 com\wild_tour\dao\SafariDAOImpl.class
@@ -27,4 +28,5 @@ com\wild_tour\dto\User.class
 com\wild_tour\servlet\CancelBooking.class
 com\wild_tour\servlet\StayAction.class
 com\wild_tour\dao\UserDAO.class
+com\wild_tour\util\EmailService.class
 com\wild_tour\servlet\ForgotPassword.class

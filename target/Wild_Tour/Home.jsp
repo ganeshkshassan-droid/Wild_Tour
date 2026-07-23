@@ -105,10 +105,12 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
+
         .hero-badge i {
             color: #e8d5b5;
             font-size: 1rem;
         }
+
         .hero-badge:hover {
             background: rgba(245, 245, 220, 0.22);
             border-color: rgba(245, 245, 220, 0.6);
@@ -124,6 +126,7 @@
             margin-bottom: 0.8rem;
             letter-spacing: -0.5px;
         }
+
         .hero h1 span {
             background: linear-gradient(135deg, #f5e6c8, #fcf3e0);
             -webkit-background-clip: text;
@@ -162,12 +165,15 @@
             font-size: 1.05rem;
             letter-spacing: 0.6px;
             transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(245, 245, 220, 0.2) inset;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4),
+                        0 0 0 2px rgba(245, 245, 220, 0.2) inset;
             text-transform: uppercase;
         }
+
         .btn-hero-primary:hover {
             transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(245, 245, 220, 0.3) inset;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5),
+                        0 0 0 4px rgba(245, 245, 220, 0.3) inset;
             background: linear-gradient(145deg, #fcf9ed, #ede8d0);
             color: #0f2a13;
         }
@@ -186,6 +192,7 @@
             transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
             box-shadow: 0 4px 16px rgba(0,0,0,0.2);
         }
+
         .btn-hero-outline:hover {
             background: rgba(245, 245, 220, 0.18);
             border-color: #f5f5dc;
@@ -217,19 +224,30 @@
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255,255,240,0.1);
         }
+
         .scroll-cue i {
             font-size: 1.2rem;
         }
 
         /* ----- animations ----- */
         @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(40px) scale(0.96); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
+            0% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         @keyframes floatDown {
-            0%, 100% { transform: translate(-50%, 0); }
-            50% { transform: translate(-50%, 12px); }
+            0%, 100% {
+                transform: translate(-50%, 0);
+            }
+            50% {
+                transform: translate(-50%, 12px);
+            }
         }
 
         /* ----- responsive finesse ----- */
@@ -239,13 +257,16 @@
                 min-height: 500px;
                 border-radius: 0 0 2rem 2rem;
             }
+
             .hero h1 {
                 font-size: 2.8rem;
             }
+
             .hero p {
                 font-size: 1.1rem;
                 max-width: 90%;
             }
+
             .btn-hero-primary,
             .btn-hero-outline {
                 padding: 0.65rem 2rem;
@@ -257,13 +278,16 @@
             .hero h1 {
                 font-size: 2.1rem;
             }
+
             .hero-badge {
                 font-size: 0.7rem;
                 padding: 0.3rem 1rem;
             }
+
             .hero-actions {
                 gap: 0.8rem;
             }
+
             .scroll-cue {
                 display: none;
             }
@@ -273,43 +297,48 @@
         ::-webkit-scrollbar {
             width: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: #142114;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #4f6b4a;
             border-radius: 12px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #6d8f66;
         }
     </style>
 </head>
+
 <body>
     
     <!-- header.jsp is included exactly as before – no logic changes -->
     <%@ include file="header.jsp" %>
 
-    <!-- Hero Section – UI enhanced, logic untouched -->
+    <!-- Hero Section -->
     <div class="hero">
+
         <div class="hero-content">
-            <span class="hero-badge">
-                <i class="fa-solid fa-paw"></i> Explore the Wild
-            </span>
-            <h1>Welcome to Your <span>Wildlife Adventure</span></h1>
+
+            <h1>
+                Welcome to Your <span>Wildlife Adventure</span>
+            </h1>
+
             <p>Experience the wild like never before</p>
-            <div class="hero-actions">
+
+            <!-- <div class="hero-actions">
                 <button class="btn btn-hero-primary">Start Exploring</button>
-                <button class="btn btn-hero-outline">Learn More</button>
-            </div>
+            </div> -->
+
         </div>
-        <div class="scroll-cue">
-            <i class="fa-solid fa-chevron-down"></i>
-            <span>scroll</span>
-        </div>
+
     </div>
 
     <!-- Bootstrap JS (unchanged) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
