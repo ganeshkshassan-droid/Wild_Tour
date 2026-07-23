@@ -329,9 +329,9 @@
 
             <p>Experience the wild like never before</p>
 
-            <div class="hero-actions">
+            <!-- <div class="hero-actions">
                 <button class="btn btn-hero-primary">Start Exploring</button>
-            </div>
+            </div> -->
 
         </div>
 
