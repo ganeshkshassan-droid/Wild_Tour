@@ -9,170 +9,354 @@ import java.util.ArrayList;
 import com.wild_tour.connection.Connector;
 import com.wild_tour.dto.User;
 
+public class UserDAOImpl implements UserDAO {
+
+    private Connection con;
 
 
-public class UserDAOImpl implements UserDAO{
-	private Connection con;
-
+    // ==========================================
+    // CONSTRUCTOR
+    // ==========================================
     public UserDAOImpl() {
+
         this.con = Connector.requestConnection();
     }
 
 
-	@Override
-	public boolean insertUser(User u) {
-		// TODO Auto-generated method stub
-		String query = "INSERT INTO user(user_name, email, password, phone, address) VALUES (?, ?, ?, ?, ?)";
-        int result = 0;
-        try {
-           
-            PreparedStatement ps = con.prepareStatement(query);
+    // ==========================================
+    // INSERT USER
+    // ==========================================
+    @Override
+    public boolean insertUser(User u) {
+
+        String query =
+                "INSERT INTO user "
+                + "(user_name, email, password, phone, address) "
+                + "VALUES (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps =
+                     con.prepareStatement(query)) {
+
             ps.setString(1, u.getUser_name());
             ps.setString(2, u.getEmail());
             ps.setString(3, u.getPassword());
             ps.setLong(4, u.getPhone());
             ps.setString(5, u.getAddress());
-            result = ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
-        if (result > 0) {
-           
-            return true;
-        } else {
-            
+            int result = ps.executeUpdate();
+
+            return result > 0;
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
             return false;
         }
     }
-        
 
-	@Override
-	public boolean updateUser(User u) {
-		// TODO Auto-generated method stub
-		String query = "UPDATE USER SET user_name=?, email=?, phone=?, password=?, address=? WHERE user_id=?";
-        int result = 0;
-        try {
-            PreparedStatement ps = con.prepareStatement(query);
+
+    // ==========================================
+    // UPDATE USER
+    // ==========================================
+    @Override
+    public boolean updateUser(User u) {
+
+        String query =
+                "UPDATE user "
+                + "SET user_name=?, "
+                + "email=?, "
+                + "phone=?, "
+                + "password=?, "
+                + "address=? "
+                + "WHERE user_id=?";
+
+        try (PreparedStatement ps =
+                     con.prepareStatement(query)) {
+
             ps.setString(1, u.getUser_name());
             ps.setString(2, u.getEmail());
-            ps.setString(4, u.getPassword());
             ps.setLong(3, u.getPhone());
+            ps.setString(4, u.getPassword());
             ps.setString(5, u.getAddress());
             ps.setInt(6, u.getUserId());
-            result = ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        if (result > 0) {
-            
-            return true;
-        } else {
-            
-            return false;
-        }
-	}
 
-	@Override
-	public boolean deleteUser(User u) {
-		// TODO Auto-generated method stub
-		String query = "DELETE FROM user WHERE useri_d=?";
-        int result = 0;
-        try {
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setInt(1, u.getUserId());
-            result = ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            int result = ps.executeUpdate();
 
-        if (result > 0) {
-            
-            return true;
-        } else {
-           
+            return result > 0;
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
             return false;
         }
     }
 
-		
 
-	@Override
-	public User getUser(String email, String password) {
-		// TODO Auto-generated method stub
-		User user = null;
-        String query = "SELECT * FROM user WHERE email=? AND password=?";
-        try {
-            PreparedStatement ps = con.prepareStatement(query);
+    // ==========================================
+    // DELETE USER
+    // ==========================================
+    @Override
+    public boolean deleteUser(User u) {
+
+        String query =
+                "DELETE FROM user "
+                + "WHERE user_id=?";
+
+        try (PreparedStatement ps =
+                     con.prepareStatement(query)) {
+
+            ps.setInt(1, u.getUserId());
+
+            int result = ps.executeUpdate();
+
+            return result > 0;
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+
+
+    // ==========================================
+    // GET USER USING EMAIL + PASSWORD
+    // LOGIN
+    // ==========================================
+    @Override
+    public User getUser(
+            String email,
+            String password) {
+
+        String query =
+                "SELECT * FROM user "
+                + "WHERE LOWER(email)=LOWER(?) "
+                + "AND password=?";
+
+        try (PreparedStatement ps =
+                     con.prepareStatement(query)) {
+
             ps.setString(1, email);
             ps.setString(2, password);
-            ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                user = new User();
-                user.setUserId(rs.getInt("user_id"));
-                user.setUser_name(rs.getString("user_name"));
-                user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
-                user.setPhone(rs.getLong("phone"));
-                user.setAddress(rs.getString("address"));
+            try (ResultSet rs =
+                     ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    return createUserFromResultSet(rs);
+                }
             }
+
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
-        return user;
+
+        return null;
     }
-		
-	@Override
-	public ArrayList<User> getAllUsers() {
-		// TODO Auto-generated method stub
-		ArrayList<User> users = new ArrayList<>();
-        String query = "SELECT * FROM user";
-        try {
-            PreparedStatement ps = con.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                User user = new User();
-                user.setUserId(rs.getInt("user_id"));
-                user.setUser_name(rs.getString("user_name"));
-                user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
-                user.setPhone(rs.getLong("phone"));
-                user.setAddress(rs.getString("address"));
-                users.add(user);
+
+    // ==========================================
+    // GET USER USING PHONE + EMAIL
+    // ==========================================
+    @Override
+    public User getUser(
+            long phone,
+            String email) {
+
+        String query =
+                "SELECT * FROM user "
+                + "WHERE phone=? "
+                + "AND LOWER(email)=LOWER(?)";
+
+        try (PreparedStatement ps =
+                     con.prepareStatement(query)) {
+
+            ps.setLong(1, phone);
+            ps.setString(2, email);
+
+            try (ResultSet rs =
+                     ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    return createUserFromResultSet(rs);
+                }
             }
+
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
+
+        return null;
+    }
+
+
+    // ==========================================
+    // GET ALL USERS
+    // ==========================================
+    @Override
+    public ArrayList<User> getAllUsers() {
+
+        ArrayList<User> users =
+                new ArrayList<>();
+
+        String query =
+                "SELECT * FROM user";
+
+        try (PreparedStatement ps =
+                     con.prepareStatement(query);
+
+             ResultSet rs =
+                     ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                users.add(
+                        createUserFromResultSet(rs)
+                );
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+
         return users;
     }
 
 
-	@Override
-	public User getUser(long phone, String email) {
-		// TODO Auto-generated method stub
-		String query ="select * from User where phone=? and email=?";
-		User u=null;
-		ResultSet rs=null;
-		try {
-			PreparedStatement ps=con.prepareStatement(query);
-			ps.setLong(1, phone);
-			ps.setString(2, email );
-			rs=ps.executeQuery();
-				while(rs.next()) {
-					u=new User();
-					u.setUserId(rs.getInt("user_id"));
-					u.setUser_name(rs.getString("user_name"));
-					u.setEmail(rs.getString("email"));
-					u.setPhone(rs.getLong("phone"));
-					u.setPassword(rs.getString("password"));
-					u.setAddress(rs.getString("address"));
-				}
-			}catch(SQLException e) {
-				e.printStackTrace();
-		}
-		return u;
-	}
+    // ==========================================
+    // CHECK WHETHER EMAIL EXISTS
+    // FOR FORGOT PASSWORD
+    // ==========================================
+    @Override
+    public boolean isEmailExists(String email) {
+
+        if (email == null
+                || email.trim().isEmpty()) {
+
+            return false;
+        }
+
+        String query =
+                "SELECT 1 "
+                + "FROM user "
+                + "WHERE LOWER(email)=LOWER(?) "
+                + "LIMIT 1";
+
+        try (PreparedStatement ps =
+                     con.prepareStatement(query)) {
+
+            ps.setString(
+                    1,
+                    email.trim()
+            );
+
+            try (ResultSet rs =
+                     ps.executeQuery()) {
+
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+
+
+    // ==========================================
+    // UPDATE PASSWORD USING EMAIL
+    // ONLY AFTER OTP VERIFICATION
+    // ==========================================
+    @Override
+    public boolean updatePasswordByEmail(
+            String email,
+            String newPassword) {
+
+        if (email == null
+                || email.trim().isEmpty()
+                || newPassword == null
+                || newPassword.isEmpty()) {
+
+            return false;
+        }
+
+        String query =
+                "UPDATE user "
+                + "SET password=? "
+                + "WHERE LOWER(email)=LOWER(?)";
+
+        try (PreparedStatement ps =
+                     con.prepareStatement(query)) {
+
+            ps.setString(
+                    1,
+                    newPassword
+            );
+
+            ps.setString(
+                    2,
+                    email.trim()
+            );
+
+            int result =
+                    ps.executeUpdate();
+
+            return result == 1;
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+
+
+    // ==========================================
+    // PRIVATE HELPER METHOD
+    // RESULTSET -> USER OBJECT
+    // ==========================================
+    private User createUserFromResultSet(
+            ResultSet rs)
+            throws SQLException {
+
+        User user =
+                new User();
+
+        user.setUserId(
+                rs.getInt("user_id")
+        );
+
+        user.setUser_name(
+                rs.getString("user_name")
+        );
+
+        user.setEmail(
+                rs.getString("email")
+        );
+
+        user.setPassword(
+                rs.getString("password")
+        );
+
+        user.setPhone(
+                rs.getLong("phone")
+        );
+
+        user.setAddress(
+                rs.getString("address")
+        );
+
+        return user;
+    }
 }
-		

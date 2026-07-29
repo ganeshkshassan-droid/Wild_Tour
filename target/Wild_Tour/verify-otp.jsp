@@ -1,6 +1,60 @@
 <%@ page language="java"
          contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8"%>
+         pageEncoding="UTF-8" %>
+
+<%
+    // ==========================================
+    // CHECK VALID PASSWORD RESET SESSION
+    // ==========================================
+
+    String resetEmail =
+            (String) session.getAttribute("resetEmail");
+
+    String resetOTP =
+            (String) session.getAttribute("resetOTP");
+
+    Long otpExpiry =
+            (Long) session.getAttribute("otpExpiry");
+
+
+    // ==========================================
+    // NO ACTIVE OTP REQUEST
+    // ==========================================
+
+    if (resetEmail == null
+            || resetOTP == null
+            || otpExpiry == null) {
+
+        response.sendRedirect(
+                request.getContextPath()
+                + "/forgot.jsp"
+        );
+
+        return;
+    }
+
+
+    // ==========================================
+    // CALCULATE REMAINING OTP TIME
+    // ==========================================
+
+    long remainingMilliseconds =
+            otpExpiry - System.currentTimeMillis();
+
+    long remainingSeconds =
+            (remainingMilliseconds + 999) / 1000;
+
+
+    if (remainingSeconds < 0) {
+        remainingSeconds = 0;
+    }
+
+
+    if (remainingSeconds > 100) {
+        remainingSeconds = 100;
+    }
+%>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,33 +66,56 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Forgot Password | Wildlife Tourism</title>
+    <title>Verify OTP | Wildlife Tourism</title>
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-          rel="stylesheet">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <!-- ==========================================
+         GOOGLE FONT
+         ========================================== -->
 
-    <!-- AOS -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css"
-          rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+
+    <!-- ==========================================
+         FONT AWESOME
+         ========================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+
+    <!-- ==========================================
+         AOS
+         ========================================== -->
+
+    <link
+        href="https://unpkg.com/aos@2.3.1/dist/aos.css"
+        rel="stylesheet">
 
 
     <style>
 
         /* ==========================================
-           RESET & BASE
+           RESET
            ========================================== */
 
         * {
+
             margin: 0;
+
             padding: 0;
+
             box-sizing: border-box;
+
         }
 
+
+        /* ==========================================
+           BODY
+           ========================================== */
 
         body {
 
@@ -56,19 +133,22 @@
 
             justify-content: center;
 
+
             background:
                 url('https://www.francisjtaylor.co.uk/wp-content/uploads/2022/04/Q7A5185-768x512.jpg')
                 no-repeat
                 center center / cover;
 
+
             padding: 20px;
 
             position: relative;
+
         }
 
 
         /* ==========================================
-           DARK BACKGROUND OVERLAY
+           BACKGROUND OVERLAY
            ========================================== */
 
         body::before {
@@ -79,6 +159,7 @@
 
             inset: 0;
 
+
             background:
                 linear-gradient(
                     135deg,
@@ -87,12 +168,14 @@
                     rgba(3, 10, 5, 0.88) 100%
                 );
 
+
             z-index: 0;
+
         }
 
 
         /* ==========================================
-           FLOATING PARTICLES
+           PARTICLES
            ========================================== */
 
         .particles {
@@ -106,6 +189,7 @@
             pointer-events: none;
 
             overflow: hidden;
+
         }
 
 
@@ -124,117 +208,184 @@
 
             animation:
                 floatParticle linear infinite;
+
         }
 
 
         .particle:nth-child(1) {
+
             left: 8%;
+
             animation-duration: 20s;
+
             animation-delay: 0s;
+
             width: 8px;
+
             height: 8px;
+
         }
 
 
         .particle:nth-child(2) {
+
             left: 20%;
+
             animation-duration: 24s;
+
             animation-delay: 2s;
+
             width: 5px;
+
             height: 5px;
+
         }
 
 
         .particle:nth-child(3) {
+
             left: 40%;
+
             animation-duration: 18s;
+
             animation-delay: 4s;
+
             width: 10px;
+
             height: 10px;
+
         }
 
 
         .particle:nth-child(4) {
+
             left: 60%;
+
             animation-duration: 22s;
+
             animation-delay: 1s;
+
             width: 6px;
+
             height: 6px;
+
         }
 
 
         .particle:nth-child(5) {
+
             left: 75%;
+
             animation-duration: 26s;
+
             animation-delay: 3s;
+
             width: 7px;
+
             height: 7px;
+
         }
 
 
         .particle:nth-child(6) {
+
             left: 88%;
+
             animation-duration: 19s;
+
             animation-delay: 5s;
+
             width: 4px;
+
             height: 4px;
+
         }
 
 
         .particle:nth-child(7) {
+
             left: 50%;
+
             animation-duration: 21s;
+
             animation-delay: 6s;
+
             width: 9px;
+
             height: 9px;
+
         }
 
 
         .particle:nth-child(8) {
+
             left: 12%;
+
             animation-duration: 17s;
+
             animation-delay: 7s;
+
             width: 5px;
+
             height: 5px;
+
         }
 
 
         .particle:nth-child(9) {
+
             left: 68%;
+
             animation-duration: 23s;
+
             animation-delay: 2.5s;
+
             width: 7px;
+
             height: 7px;
+
         }
 
 
         .particle:nth-child(10) {
+
             left: 32%;
+
             animation-duration: 20s;
+
             animation-delay: 4.5s;
+
             width: 6px;
+
             height: 6px;
+
         }
 
 
         @keyframes floatParticle {
 
             0% {
+
                 transform:
                     translateY(100vh)
                     scale(0);
 
                 opacity: 0;
+
             }
 
 
             10% {
+
                 opacity: 1;
+
             }
 
 
             90% {
+
                 opacity: 1;
+
             }
 
 
@@ -245,15 +396,17 @@
                     scale(1);
 
                 opacity: 0;
+
             }
+
         }
 
 
         /* ==========================================
-           FORGOT PASSWORD WRAPPER
+           WRAPPER
            ========================================== */
 
-        .forgot-wrapper {
+        .otp-wrapper {
 
             position: relative;
 
@@ -263,10 +416,13 @@
 
             max-width: 440px;
 
+
             animation:
                 fadeInUp 0.6s ease forwards;
 
+
             opacity: 0;
+
         }
 
 
@@ -278,6 +434,7 @@
 
                 transform:
                     translateY(30px);
+
             }
 
 
@@ -287,7 +444,9 @@
 
                 transform:
                     translateY(0);
+
             }
+
         }
 
 
@@ -295,31 +454,36 @@
            CARD
            ========================================== */
 
-        .forgot-card {
+        .otp-card {
 
             background: #ffffff;
 
             border-radius: 24px;
+
 
             padding:
                 40px
                 36px
                 32px;
 
+
             box-shadow:
                 0 20px 60px
                 rgba(0, 0, 0, 0.30);
 
-            transition:
-                transform 0.2s ease;
 
             position: relative;
 
             overflow: hidden;
+
         }
 
 
-        .forgot-card::before {
+        /* ==========================================
+           GREEN TOP ANIMATION
+           ========================================== */
+
+        .otp-card::before {
 
             content: '';
 
@@ -333,6 +497,7 @@
 
             height: 4px;
 
+
             background:
                 linear-gradient(
                     90deg,
@@ -343,14 +508,17 @@
                     #2e7d32
                 );
 
+
             background-size:
                 200% 100%;
+
 
             animation:
                 gradientMove
                 4s
                 ease-in-out
                 infinite;
+
         }
 
 
@@ -358,15 +526,20 @@
 
             0%,
             100% {
+
                 background-position:
                     0% 50%;
+
             }
 
 
             50% {
+
                 background-position:
                     100% 50%;
+
             }
+
         }
 
 
@@ -374,15 +547,16 @@
            HEADER
            ========================================== */
 
-        .forgot-header {
+        .otp-header {
 
             text-align: center;
 
-            margin-bottom: 28px;
+            margin-bottom: 25px;
+
         }
 
 
-        .forgot-header .icon-wrapper {
+        .icon-wrapper {
 
             display: inline-flex;
 
@@ -390,9 +564,11 @@
 
             justify-content: center;
 
+
             width: 72px;
 
             height: 72px;
+
 
             background:
                 linear-gradient(
@@ -401,31 +577,37 @@
                     #c8e6c9
                 );
 
+
             border-radius: 50%;
+
 
             margin-bottom: 14px;
 
+
             transition:
                 transform 0.3s ease;
+
         }
 
 
-        .forgot-header .icon-wrapper i {
-
-            font-size: 32px;
-
-            color: #2e7d32;
-        }
-
-
-        .forgot-header .icon-wrapper:hover {
+        .icon-wrapper:hover {
 
             transform:
                 scale(1.05);
+
         }
 
 
-        .forgot-header h2 {
+        .icon-wrapper i {
+
+            font-size: 30px;
+
+            color: #2e7d32;
+
+        }
+
+
+        .otp-header h2 {
 
             font-weight: 800;
 
@@ -435,11 +617,10 @@
 
             letter-spacing: -0.5px;
 
-            margin: 0;
         }
 
 
-        .forgot-header h2 span {
+        .otp-header h2 span {
 
             background:
                 linear-gradient(
@@ -448,28 +629,75 @@
                     #66bb6a
                 );
 
+
             -webkit-background-clip: text;
 
             -webkit-text-fill-color: transparent;
 
             background-clip: text;
+
         }
 
 
-        .forgot-header p {
+        .otp-header p {
 
             color: #6b7a6b;
 
-            font-size: 0.95rem;
-
-            font-weight: 400;
+            font-size: 0.92rem;
 
             line-height: 1.6;
 
-            margin:
-                8px
-                0
-                0;
+            margin-top: 8px;
+
+        }
+
+
+        /* ==========================================
+           EMAIL DISPLAY
+           ========================================== */
+
+        .email-box {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+
+
+            background: #f1f8e9;
+
+
+            color: #2e7d32;
+
+
+            padding:
+                10px
+                12px;
+
+
+            border-radius: 10px;
+
+
+            margin-top: 14px;
+
+
+            font-size: 0.85rem;
+
+            font-weight: 600;
+
+
+            word-break: break-word;
+
+        }
+
+
+        .email-box i {
+
+            flex-shrink: 0;
+
         }
 
 
@@ -477,33 +705,35 @@
            MESSAGES
            ========================================== */
 
-        .message-container {
-
-            margin-bottom: 20px;
-        }
-
-
         .message {
 
             padding:
                 12px
                 16px;
 
+
             border-radius: 12px;
+
 
             font-size: 0.88rem;
 
             font-weight: 500;
 
+
             display: flex;
 
             align-items: center;
 
-            gap: 12px;
+            gap: 10px;
+
+
+            margin-bottom: 18px;
+
 
             animation:
                 slideMessage
                 0.4s ease forwards;
+
         }
 
 
@@ -515,6 +745,7 @@
 
                 transform:
                     translateY(-8px);
+
             }
 
 
@@ -524,18 +755,9 @@
 
                 transform:
                     translateY(0);
+
             }
-        }
 
-
-        .message.success {
-
-            background: #e8f5e9;
-
-            border-left:
-                4px solid #2e7d32;
-
-            color: #1e4a22;
         }
 
 
@@ -547,26 +769,33 @@
                 4px solid #c62828;
 
             color: #8e1a1a;
+
         }
 
 
-        .message i {
+        .message.success {
 
-            font-size: 1.1rem;
+            background: #e8f5e9;
 
-            flex-shrink: 0;
-        }
+            border-left:
+                4px solid #2e7d32;
 
+            color: #1e4a22;
 
-        .message.success i {
-
-            color: #2e7d32;
         }
 
 
         .message.error i {
 
             color: #c62828;
+
+        }
+
+
+        .message.success i {
+
+            color: #2e7d32;
+
         }
 
 
@@ -574,13 +803,14 @@
            FORM
            ========================================== */
 
-        .forgot-form {
+        .otp-form {
 
             display: flex;
 
             flex-direction: column;
 
             gap: 16px;
+
         }
 
 
@@ -590,7 +820,8 @@
 
             flex-direction: column;
 
-            gap: 6px;
+            gap: 7px;
+
         }
 
 
@@ -602,11 +833,13 @@
 
             color: #2a3a2a;
 
+
             display: flex;
 
             align-items: center;
 
             gap: 6px;
+
         }
 
 
@@ -614,183 +847,209 @@
 
             color: #2e7d32;
 
-            font-size: 0.85rem;
-
-            width: 16px;
         }
 
 
         /* ==========================================
-           INPUT
+           OTP INPUT
            ========================================== */
 
-        .input-wrapper {
-
-            position: relative;
-        }
-
-
-        .input-wrapper .input-icon {
-
-            position: absolute;
-
-            left: 14px;
-
-            top: 50%;
-
-            transform:
-                translateY(-50%);
-
-            color: #8a9a8a;
-
-            font-size: 0.95rem;
-
-            transition:
-                color 0.3s ease;
-
-            pointer-events: none;
-        }
-
-
-        .input-wrapper input {
+        .otp-input {
 
             width: 100%;
 
+
             padding:
-                13px
-                16px
-                13px
-                44px;
+                14px
+                15px;
+
 
             border:
                 1.5px solid #dce4dc;
 
+
             border-radius: 12px;
+
 
             background: #fafcfa;
 
+
             color: #1a2e1a;
 
-            font-size: 0.95rem;
 
             font-family:
                 'Inter',
                 sans-serif;
 
-            font-weight: 400;
+
+            font-size: 1.35rem;
+
+            font-weight: 700;
+
+
+            text-align: center;
+
+
+            letter-spacing: 10px;
+
+
+            outline: none;
+
 
             transition:
                 all 0.3s ease;
 
-            outline: none;
         }
 
 
-        .input-wrapper input::placeholder {
+        .otp-input::placeholder {
 
-            color: #a0b0a0;
+            color: #bdc8bd;
 
-            font-weight: 400;
-
-            font-size: 0.92rem;
         }
 
 
-        .input-wrapper input:hover {
+        .otp-input:hover {
 
             border-color: #b0c8b0;
 
             background: #ffffff;
+
         }
 
 
-        .input-wrapper input:focus {
+        .otp-input:focus {
 
             border-color: #2e7d32;
 
             background: #ffffff;
 
+
             box-shadow:
                 0 0 0 4px
                 rgba(46, 125, 50, 0.10);
-        }
 
-
-        .input-wrapper input:focus
-        ~ .input-icon {
-
-            color: #2e7d32;
         }
 
 
         /* ==========================================
-           INFO BOX
+           TIMER
            ========================================== */
 
-        .otp-info {
+        .timer-box {
 
             display: flex;
 
-            align-items: flex-start;
+            align-items: center;
 
-            gap: 10px;
+            justify-content: center;
+
+            gap: 8px;
+
 
             padding:
                 12px
                 14px;
 
+
             background: #f1f8e9;
+
 
             border-radius: 10px;
 
+
             color: #557055;
 
-            font-size: 0.78rem;
 
-            line-height: 1.5;
+            font-size: 0.85rem;
+
         }
 
 
-        .otp-info i {
+        .timer-box i {
 
             color: #2e7d32;
 
-            margin-top: 2px;
+        }
+
+
+        #timer {
+
+            color: #2e7d32;
+
+            font-size: 1rem;
+
+            font-weight: 800;
+
+        }
+
+
+        .timer-box.timer-expired {
+
+            background: #ffebee;
+
+            color: #8e1a1a;
+
+        }
+
+
+        .timer-box.timer-expired i {
+
+            color: #c62828;
+
+        }
+
+
+        .timer-box.timer-expired #timer {
+
+            color: #c62828;
+
         }
 
 
         /* ==========================================
-           BUTTON
+           VERIFY BUTTON
            ========================================== */
 
-        .btn-reset {
+        .verify-btn {
 
             width: 100%;
 
+
             padding: 15px;
+
 
             border: none;
 
+
             border-radius: 12px;
+
 
             background: #2e7d32;
 
+
             color: white;
+
 
             font-size: 1rem;
 
             font-weight: 700;
 
+
             font-family:
                 'Inter',
                 sans-serif;
 
+
             cursor: pointer;
+
 
             transition:
                 all 0.3s ease;
 
+
             letter-spacing: 0.3px;
+
 
             display: flex;
 
@@ -800,55 +1059,45 @@
 
             gap: 10px;
 
-            margin-top: 4px;
         }
 
 
-        .btn-reset:hover {
+        .verify-btn:hover {
 
             background: #1b5e20;
+
 
             transform:
                 translateY(-2px);
 
+
             box-shadow:
                 0 8px 24px
                 rgba(46, 125, 50, 0.30);
+
         }
 
 
-        .btn-reset:active {
+        .verify-btn:active {
 
             transform:
                 scale(0.97);
 
             box-shadow: none;
+
         }
 
 
-        .btn-reset i {
+        .verify-btn:disabled {
 
-            transition:
-                transform 0.3s ease;
-        }
-
-
-        .btn-reset:hover i {
-
-            transform:
-                translateX(4px);
-        }
-
-
-        .btn-reset:disabled {
-
-            background: #8fa891;
+            background: #9e9e9e;
 
             cursor: not-allowed;
 
             transform: none;
 
             box-shadow: none;
+
         }
 
 
@@ -856,24 +1105,35 @@
            FOOTER
            ========================================== */
 
-        .forgot-footer {
+        .otp-footer {
 
             margin-top: 24px;
 
             padding-top: 20px;
 
+
             border-top:
                 1px solid #e8eee8;
 
+
             text-align: center;
+
+
+            font-size: 0.88rem;
 
             color: #6b7a6b;
 
-            font-size: 0.92rem;
         }
 
 
-        .forgot-footer a {
+        .otp-footer p {
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .otp-footer a {
 
             color: #2e7d32;
 
@@ -881,22 +1141,22 @@
 
             font-weight: 600;
 
-            transition:
-                color 0.2s ease;
 
             display: inline-flex;
 
             align-items: center;
 
             gap: 6px;
+
         }
 
 
-        .forgot-footer a:hover {
+        .otp-footer a:hover {
 
             color: #1b5e20;
 
             text-decoration: underline;
+
         }
 
 
@@ -906,7 +1166,7 @@
 
         @media (max-width: 520px) {
 
-            .forgot-card {
+            .otp-card {
 
                 padding:
                     28px
@@ -914,85 +1174,81 @@
                     24px;
 
                 border-radius: 20px;
+
             }
 
 
-            .forgot-header h2 {
+            .otp-header h2 {
 
                 font-size: 1.4rem;
+
             }
 
 
-            .forgot-header .icon-wrapper {
+            .icon-wrapper {
 
                 width: 60px;
 
                 height: 60px;
+
             }
 
 
-            .forgot-header .icon-wrapper i {
+            .icon-wrapper i {
 
-                font-size: 26px;
+                font-size: 25px;
+
             }
 
 
-            .input-wrapper input {
+            .otp-input {
 
-                padding:
-                    12px
-                    14px
-                    12px
-                    40px;
+                font-size: 1.15rem;
 
-                font-size: 0.9rem;
+                letter-spacing: 8px;
+
             }
 
 
-            .btn-reset {
+            .verify-btn {
 
                 padding: 13px;
 
                 font-size: 0.92rem;
+
             }
+
         }
 
 
         @media (max-width: 380px) {
 
-            .forgot-card {
+            .otp-card {
 
                 padding:
                     20px
-                    14px
-                    20px;
+                    14px;
 
                 border-radius: 16px;
+
             }
 
 
-            .input-wrapper input {
+            .otp-input {
 
-                padding:
-                    11px
-                    12px
-                    11px
-                    36px;
+                font-size: 1rem;
 
-                font-size: 0.85rem;
+                letter-spacing: 6px;
+
             }
 
 
-            .forgot-header h2 {
+            .otp-header h2 {
 
                 font-size: 1.2rem;
+
             }
 
-
-            .form-group label {
-
-                font-size: 0.75rem;
-            }
         }
 
     </style>
@@ -1004,7 +1260,7 @@
 
 
     <!-- ==========================================
-         DECORATIVE PARTICLES
+         FLOATING PARTICLES
          ========================================== -->
 
     <div class="particles">
@@ -1024,191 +1280,232 @@
 
 
     <!-- ==========================================
-         FORGOT PASSWORD CARD
+         OTP WRAPPER
          ========================================== -->
 
-    <div class="forgot-wrapper"
+    <div class="otp-wrapper"
          data-aos="fade-up">
 
 
-        <div class="forgot-card">
+        <div class="otp-card">
 
 
             <!-- ==================================
                  HEADER
                  ================================== -->
 
-            <div class="forgot-header">
+            <div class="otp-header">
 
 
                 <div class="icon-wrapper">
 
-                    <i class="fa-solid fa-key"></i>
+                    <i class="fa-solid fa-shield-halved"></i>
 
                 </div>
 
 
                 <h2>
-                    Forgot
-                    <span>Password</span>
+
+                    Verify
+                    <span>OTP</span>
+
                 </h2>
 
 
                 <p>
-                    Enter your registered email address
-                    and we'll send you a verification OTP.
+
+                    Enter the 6-digit verification code
+                    sent to your registered email address.
+
                 </p>
 
 
-            </div>
+                <div class="email-box">
 
-
-            <!-- ==================================
-                 SUCCESS / ERROR MESSAGES
-                 ================================== -->
-
-            <div class="message-container">
-
-
-                <%
-                    String successMessage =
-                            (String)
-                            request.getAttribute(
-                                    "success"
-                            );
-
-                    if (successMessage != null) {
-                %>
-
-
-                    <div class="message success">
-
-                        <i class="fa-solid fa-circle-check"></i>
-
-                        <%= successMessage %>
-
-                    </div>
-
-
-                <%
-                    }
-                %>
-
-
-                <%
-                    String errorMessage =
-                            (String)
-                            request.getAttribute(
-                                    "error"
-                            );
-
-                    if (errorMessage != null) {
-                %>
-
-
-                    <div class="message error">
-
-                        <i class="fa-solid fa-circle-exclamation"></i>
-
-                        <%= errorMessage %>
-
-                    </div>
-
-
-                <%
-                    }
-                %>
-
-
-            </div>
-
-
-            <!-- ==================================
-                 FORGOT PASSWORD FORM
-                 ================================== -->
-
-            <form
-                class="forgot-form"
-                action="<%= request.getContextPath() %>/forgot"
-                method="post"
-                id="forgotForm">
-
-
-                <!-- ==============================
-                     EMAIL
-                     ============================== -->
-
-                <div class="form-group">
-
-
-                    <label for="email">
-
-                        <i class="fa-regular fa-envelope"></i>
-
-                        Email Address
-
-                    </label>
-
-
-                    <div class="input-wrapper">
-
-
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="Enter your registered email address"
-                            autocomplete="email"
-                            maxlength="150"
-                            required
-                        >
-
-
-                        <span class="input-icon">
-
-                            <i class="fa-regular fa-envelope"></i>
-
-                        </span>
-
-
-                    </div>
-
-
-                </div>
-
-
-                <!-- ==============================
-                     OTP INFORMATION
-                     ============================== -->
-
-                <div class="otp-info">
-
-                    <i class="fa-solid fa-shield-halved"></i>
+                    <i class="fa-regular fa-envelope"></i>
 
                     <span>
-                        A 6-digit OTP will be sent to your
-                        registered email address. The OTP
-                        will be valid for 100 seconds.
+                        <%= resetEmail %>
                     </span>
 
                 </div>
 
 
+            </div>
+
+
+            <!-- ==================================
+                 ERROR MESSAGE
+                 ================================== -->
+
+            <%
+
+                String error =
+                        (String)
+                        request.getAttribute(
+                                "error"
+                        );
+
+
+                if (error != null) {
+
+            %>
+
+
+                <div class="message error">
+
+                    <i class="fa-solid fa-circle-exclamation"></i>
+
+                    <span>
+                        <%= error %>
+                    </span>
+
+                </div>
+
+
+            <%
+
+                }
+
+            %>
+
+
+            <!-- ==================================
+                 SUCCESS MESSAGE
+                 ================================== -->
+
+            <%
+
+                String success =
+                        (String)
+                        request.getAttribute(
+                                "success"
+                        );
+
+
+                if (success != null) {
+
+            %>
+
+
+                <div class="message success">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                    <span>
+                        <%= success %>
+                    </span>
+
+                </div>
+
+
+            <%
+
+                }
+
+            %>
+
+
+            <!-- ==================================
+                 OTP FORM
+                 ================================== -->
+
+            <form
+                action="<%= request.getContextPath() %>/verify-otp"
+                method="post"
+                class="otp-form"
+                id="otpForm">
+
+
                 <!-- ==============================
-                     SEND OTP BUTTON
+                     OTP INPUT
+                     ============================== -->
+
+                <div class="form-group">
+
+
+                    <label for="otp">
+
+                        <i class="fa-solid fa-key"></i>
+
+                        Verification Code
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        name="otp"
+                        id="otp"
+                        class="otp-input"
+
+                        maxlength="6"
+
+                        inputmode="numeric"
+
+                        pattern="[0-9]{6}"
+
+                        autocomplete="one-time-code"
+
+                        placeholder="000000"
+
+                        aria-label="6 digit OTP"
+
+                        required
+                    >
+
+
+                </div>
+
+
+                <!-- ==============================
+                     TIMER
+                     ============================== -->
+
+                <div
+                    class="timer-box"
+                    id="timerBox">
+
+
+                    <i class="fa-regular fa-clock"></i>
+
+
+                    <span id="timerMessage">
+
+                        OTP expires in
+
+                        <span id="timer">
+                            <%= remainingSeconds %>
+                        </span>
+
+                        seconds
+
+                    </span>
+
+
+                </div>
+
+
+                <!-- ==============================
+                     VERIFY BUTTON
                      ============================== -->
 
                 <button
                     type="submit"
-                    class="btn-reset"
-                    id="sendOtpButton">
+                    id="verifyButton"
+                    class="verify-btn">
 
 
-                    <i class="fa-solid fa-paper-plane"></i>
+                    <i
+                        class="fa-solid fa-shield-check"
+                        id="verifyIcon">
+                    </i>
 
 
-                    <span id="buttonText">
-                        Send OTP
+                    <span id="verifyButtonText">
+
+                        Verify OTP
+
                     </span>
 
 
@@ -1222,16 +1519,22 @@
                  FOOTER
                  ================================== -->
 
-            <div class="forgot-footer">
+            <div class="otp-footer">
 
 
-                <a href="<%= request.getContextPath() %>/login.jsp">
+                <p>
+                    Didn't receive the OTP?
+                </p>
 
 
-                    <i class="fa-solid fa-arrow-left"></i>
+                <a
+                    href="<%= request.getContextPath() %>/forgot.jsp">
 
 
-                    Back to Login
+                    <i class="fa-solid fa-rotate-right"></i>
+
+
+                    Request New OTP
 
 
                 </a>
@@ -1247,10 +1550,12 @@
 
 
     <!-- ==========================================
-         AOS
+         AOS JAVASCRIPT
          ========================================== -->
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script
+        src="https://unpkg.com/aos@2.3.1/dist/aos.js">
+    </script>
 
 
     <script>
@@ -1273,22 +1578,62 @@
 
 
         // ==========================================
-        // AUTO FOCUS EMAIL
+        // GET ELEMENTS
+        // ==========================================
+
+        const otpInput =
+            document.getElementById(
+                "otp"
+            );
+
+
+        const otpForm =
+            document.getElementById(
+                "otpForm"
+            );
+
+
+        const timer =
+            document.getElementById(
+                "timer"
+            );
+
+
+        const timerBox =
+            document.getElementById(
+                "timerBox"
+            );
+
+
+        const timerMessage =
+            document.getElementById(
+                "timerMessage"
+            );
+
+
+        const verifyButton =
+            document.getElementById(
+                "verifyButton"
+            );
+
+
+        const verifyButtonText =
+            document.getElementById(
+                "verifyButtonText"
+            );
+
+
+        // ==========================================
+        // AUTO FOCUS OTP
         // ==========================================
 
         document.addEventListener(
-            'DOMContentLoaded',
+            "DOMContentLoaded",
             function () {
 
-                const emailInput =
-                    document.getElementById(
-                        'email'
-                    );
+                if (otpInput) {
 
-
-                if (emailInput) {
-
-                    emailInput.focus();
+                    otpInput.focus();
 
                 }
 
@@ -1297,48 +1642,158 @@
 
 
         // ==========================================
-        // PREVENT DOUBLE SUBMISSION
+        // ONLY ALLOW NUMBERS
         // ==========================================
 
-        const forgotForm =
-            document.getElementById(
-                'forgotForm'
-            );
-
-
-        const sendOtpButton =
-            document.getElementById(
-                'sendOtpButton'
-            );
-
-
-        const buttonText =
-            document.getElementById(
-                'buttonText'
-            );
-
-
-        forgotForm.addEventListener(
-            'submit',
+        otpInput.addEventListener(
+            "input",
             function () {
 
 
-                /*
-                 * Browser performs normal HTML5
-                 * email validation before this
-                 * submit event completes.
-                 *
-                 * Disable the button so the user
-                 * cannot accidentally request
-                 * multiple OTPs by double-clicking.
-                 */
+                this.value =
+                    this.value
+                        .replace(
+                            /[^0-9]/g,
+                            ""
+                        )
+                        .slice(
+                            0,
+                            6
+                        );
 
-                sendOtpButton.disabled =
+            }
+        );
+
+
+        // ==========================================
+        // TIMER
+        // ==========================================
+
+        let timeLeft =
+            <%= remainingSeconds %>;
+
+
+        function expireOTP() {
+
+
+            timeLeft = 0;
+
+
+            timerBox.classList.add(
+                "timer-expired"
+            );
+
+
+            timerMessage.innerHTML =
+                "OTP has expired";
+
+
+            otpInput.disabled =
+                true;
+
+
+            verifyButton.disabled =
+                true;
+
+
+            verifyButtonText.textContent =
+                "OTP Expired";
+
+        }
+
+
+        if (timeLeft <= 0) {
+
+
+            expireOTP();
+
+
+        } else {
+
+
+            timer.textContent =
+                timeLeft;
+
+
+            const countdown =
+                setInterval(
+                    function () {
+
+
+                        timeLeft--;
+
+
+                        if (timeLeft <= 0) {
+
+
+                            clearInterval(
+                                countdown
+                            );
+
+
+                            expireOTP();
+
+
+                            return;
+
+                        }
+
+
+                        timer.textContent =
+                            timeLeft;
+
+
+                    },
+                    1000
+                );
+
+        }
+
+
+        // ==========================================
+        // PREVENT DOUBLE SUBMISSION
+        // ==========================================
+
+        otpForm.addEventListener(
+            "submit",
+            function (event) {
+
+
+                // OTP already expired
+                if (timeLeft <= 0) {
+
+
+                    event.preventDefault();
+
+
+                    return;
+
+                }
+
+
+                // Must be exactly 6 digits
+                if (!/^\d{6}$/.test(
+                        otpInput.value
+                    )) {
+
+
+                    event.preventDefault();
+
+
+                    otpInput.focus();
+
+
+                    return;
+
+                }
+
+
+                verifyButton.disabled =
                     true;
 
 
-                buttonText.textContent =
-                    'Sending OTP...';
+                verifyButtonText.textContent =
+                    "Verifying...";
 
             }
         );
